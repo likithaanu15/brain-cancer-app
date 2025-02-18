@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOPMA Protein Secondary Structure Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+        .sequence {
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .chart {
+            width: 100%;
+            height: 300px;
+            margin-top: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <h1>SOPMA Protein Secondary Structure Prediction</h1>
+
+    <label for="proteinSequence">Enter Protein Sequence:</label><br>
+    <textarea id="proteinSequence" rows="5" cols="60">
+MALWMRLLPLLALLALWGPDPAAAFVNQHLCGSHLVEALYLVCGERGFFYTPKTRREAEDLQVGQVELGGGPGAGSLQPLALEGSLQKRGIVEQCCTSICSLYQLENYCN
+    </textarea><br><br>
+
+    <button class="button" onclick="predictStructure()">Predict Structure</button>
+
+    <div id="results" style="display: none;">
+        <h2>Prediction Results</h2>
+        <p><strong>Sequence:</strong> <span class="sequence" id="displayedSequence"></span></p>
+        <p><strong>Sequence Length:</strong> <span id="sequenceLength"></span></p>
+
+        <h3>SOPMA Results:</h3>
+        <div id="sopmaResults"></div>
+
+        <div class="chart">
+            <canvas id="structureChart"></canvas>
+        </div>
+
+        <div id="chartLegend"></div> 
+
+        <img id="outputImage" src="" alt="SOPMA Output Image" style="max-width: 800px; margin-top: 20px;">
+    </div>
+
+    <script>
+        function predictStructure() {
+            const sequence = document.getElementById('proteinSequence').value;
+            const sopmaOutput = getSopmaResults(sequence);
+            displayResults(sopmaOutput);
+        }
+
+        function getSopmaResults(sequence) {
+            // Simulate SOPMA response based on sequence (replace with actual backend call)
+            return {
+                alphaHelix: 37,
+                betaSheet: 9,
+                coil: 64,
+                turn: 0,
+                total: 110,
+                imageData: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAlgAAAHkCAYAAAA...", // Example image
+            };
+        }
+
+        function displayResults(sopmaOutput) {
+            document.getElementById('results').style.display = 'block';
+
+            // Display sequence and length
+            document.getElementById('displayedSequence').textContent = document.getElementById('proteinSequence').value;
+            document.getElementById('sequenceLength').textContent = document.getElementById('proteinSequence').value.length;
+
+            // Display SOPMA results
+            const percentages = calculatePercentages(sopmaOutput);
+            displaySopmaResults(percentages);
+
+            // Display chart
+            displayChart(percentages);
+
+            // Display image
+            document.getElementById('outputImage').src = sopmaOutput.imageData;
+        }
+
+        function calculatePercentages(sopmaOutput) {
+            return {
+                AlphaHelix: (sopmaOutput.alphaHelix / sopmaOutput.total) * 100,
+                BetaSheet: (sopmaOutput.betaSheet / sopmaOutput.total) * 100,
+                Coil: (sopmaOutput.coil / sopmaOutput.total) * 100,
+                Turn: (sopmaOutput.turn / sopmaOutput.total) * 100,
+            };
+        }
+
+        function displaySopmaResults(percentages) {
+            const sopmaDiv = document.getElementById('sopmaResults');
+            sopmaDiv.innerHTML = "";  // Clear previous results
+
+            for (const [key, value] of Object.entries(percentages)) {
+                sopmaDiv.innerHTML += `${key}: ${value.toFixed(2)}%<br>`;
+            }
+        }
+
+        function displayChart(percentages) {
+            const ctx = document.getElementById('structureChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(percentages),
+                    datasets: [{
+                        label: 'Percentage of Structure',
+                        data: Object.values(percentages),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
